@@ -6,7 +6,7 @@ const {PrivateKey, RinkebyURL, KovanURL, MumbaiURL, EtherscanApiKey} = process.e
 
 
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.7",
   defaultNetwork: "hardhat",
   networks: {
     rinkeby: {
