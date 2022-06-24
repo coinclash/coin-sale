@@ -8,7 +8,7 @@ contract FundDeposit {
     mapping (address => bool) private whiteListedUsers;
     mapping (address => uint) maxUserDeposit;
     mapping (address => uint) private userBalance;
-    address USDT = 0xB0Dfaaa92e4F3667758F2A864D50F94E8aC7a56B; //USDT token address in Rinkeby network
+    address constant USDT = 0xB0Dfaaa92e4F3667758F2A864D50F94E8aC7a56B; //USDT token address in Rinkeby network
 
     constructor() {
         owner = msg.sender;
@@ -38,10 +38,12 @@ contract FundDeposit {
     function withdraw() external onlyOwner {
         if(address(this).balance != 0){
             (bool success, ) = payable(owner).call{value: address(this).balance}("");
+            require(success, "withdrawal failed");
         }
         uint usdtBalance = IERC20(USDT).balanceOf(address(this));
         if(usdtBalance != 0){
-            IERC20(USDT).transfer(owner, usdtBalance);
+            bool success = IERC20(USDT).transfer(owner, usdtBalance);
+            require(success, "USDT withdrawal failed");
         }
-    } 
+    }
 }
