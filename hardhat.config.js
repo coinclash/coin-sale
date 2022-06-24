@@ -2,7 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require ('dotenv').config();
 require("@nomiclabs/hardhat-etherscan");
 
-const {PrivateKey, RinkebyURL, KovanURL, MumbaiURL, EtherscanApiKey} = process.env;
+const {PrivateKey, mainnetUrl, RinkebyURL,RopstenUrl, KovanURL, MumbaiURL, EtherscanApiKey} = process.env;
 
 
 module.exports = {
@@ -19,6 +19,14 @@ module.exports = {
     },
     kovan: {
       url: KovanURL,
+      accounts: [PrivateKey]
+    },
+    ropsten: {
+      url: RopstenUrl,
+      accounts: [PrivateKey]
+    },
+    mainnet: {
+      url: mainnetUrl,
       accounts: [PrivateKey]
     }
   },
