@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract FundDeposit {
+
     address owner;
+    address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; 
+
     mapping (address => bool) private whiteListedUsers;
     mapping (address => uint) maxUserDeposit;
     mapping (address => uint) private userBalance;
-    address constant USDT = 0xB0Dfaaa92e4F3667758F2A864D50F94E8aC7a56B; //USDT token address in Rinkeby network
+
+    event Deposit(address indexed user, uint amount);
 
     constructor() {
         owner = msg.sender;
@@ -24,6 +28,7 @@ contract FundDeposit {
         require(whiteListedUsers[msg.sender], "user is not in whitelist");
         require(msg.value != 0 && (msg.value + userBalance[msg.sender]) <= maxUserDeposit[msg.sender], "amount should be more than zero and less than the reserved amount");
         userBalance[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
     }
 
     function whiteListUser(address user, uint maxAmount) external onlyOwner {
@@ -40,10 +45,10 @@ contract FundDeposit {
             (bool success, ) = payable(owner).call{value: address(this).balance}("");
             require(success, "withdrawal failed");
         }
-        uint usdtBalance = IERC20(USDT).balanceOf(address(this));
-        if(usdtBalance != 0){
-            bool success = IERC20(USDT).transfer(owner, usdtBalance);
-            require(success, "USDT withdrawal failed");
+        uint usdcBalance = IERC20(USDC).balanceOf(address(this));
+        if(usdcBalance != 0){
+            bool success = IERC20(USDC).transfer(owner, usdcBalance);
+            require(success, "USDC withdrawal failed");
         }
     }
 }

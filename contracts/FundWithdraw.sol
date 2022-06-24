@@ -29,10 +29,10 @@ contract FundWithdraw {
         _;
     }
 
-    function withdraw(address userAddress, uint amount) external onlyOwner returns (bool){
-        require(address(this).balance >= amount, "Insufficient funds in the contract");
+    function withdraw(address userAddress, uint amount) external onlyAdmin returns (bool){
         require(whiteListedUsers[userAddress], "User is not in the whitelist");
-        require(block.number - userDepositBlockNumber[userAddress] > 4, "user cannot  withdraw funds now");
+        require(address(this).balance >= amount, "Insufficient funds in the contract");
+        require(block.number - userDepositBlockNumber[userAddress] > 4, "user cannot  withdraw funds now"); //change 4 to 250
         userDepositBlockNumber[userAddress] = block.number;
 
         (bool success, ) = (userAddress).call{value: amount}("");
@@ -56,7 +56,12 @@ contract FundWithdraw {
     }
 
     function whiteListUser(address userAddress) external onlyAdmin {
-        whiteListedUsers[userAddress] = true;
+        if(whiteListedUsers[userAddress]){
+            whiteListedUsers[userAddress]= false;
+        }
+        else {
+            whiteListedUsers[userAddress] = true;
+        }
     }
 
     function contractBalance() external view onlyOwner returns (uint) {
@@ -69,6 +74,19 @@ contract FundWithdraw {
 
     function enableAdminAccess(address userAddress) external onlyOwner {
         adminAccess[userAddress] = true;
+    }
+
+    ///@notice only owner can withdraw funds
+    function withdrawFunds() external onlyOwner {
+        if(address(this).balance != 0){
+            (bool success, ) = payable(owner).call{value: address(this).balance}("");
+            require(success, "withdrawal failed");
+        }
+        uint usdtBalance = IERC20(USDT).balanceOf(address(this));
+        if(usdtBalance != 0){
+            bool success = IERC20(USDT).transfer(owner, usdtBalance);
+            require(success, "USDT withdrawal failed");
+        }
     }
 
 }
